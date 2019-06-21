@@ -1,6 +1,12 @@
 const express = require('express')
 const app = express()
 const port = 3003
+// 引用body-parser
+const bodyParser = require('body-parser')
+
+// 設定body-parser
+app.use(bodyParser.urlencoded({ extended: true }))
+
 // 引用express-handlebars
 const exphbs = require('express-handlebars')
 // 告訴express使用handlebars作為template engine並預設layout為'main'
@@ -23,7 +29,11 @@ const Todo = require('./models/todo')
 // 設定路由
 // Todo 首頁
 app.get('/', (req, res) => {
-    return res.render('index')
+    Todo.find((err, todos) => {
+        // 把Todo model所有的資料都抓回來
+        if (err) return console.error(err)
+        return res.render('index', { todos: todos })
+    })
 })
 
 // 列出全部 Todo
@@ -33,7 +43,7 @@ app.get('/todos', (req, res) => {
 
 // 新增一筆 Todo 頁面
 app.get('/todos/new', (req, res) => {
-    res.send('新增 Todo 頁面')
+    return res.render('new')
 })
 
 // 顯示一筆 Todo 的詳細內容
@@ -43,7 +53,14 @@ app.get('/todos/:id', (req, res) => {
 
 // 新增一筆  Todo
 app.post('/todos', (req, res) => {
-    res.send('建立 Todo')
+    const todo = new Todo({
+        name: req.body.name
+    })
+
+    todo.save(err => {
+        if (err) return console.log(err)
+        return res.redirect('/')
+    })
 })
 
 // 修改 Todo 頁面
