@@ -29,11 +29,13 @@ const Todo = require('./models/todo')
 // 設定路由
 // Todo 首頁
 app.get('/', (req, res) => {
-    Todo.find((err, todos) => {
-        // 把Todo model所有的資料都抓回來
-        if (err) return console.error(err)
-        return res.render('index', { todos: todos })
-    })
+    Todo.find({})
+        .sort({ name: 'asc' })
+        .exec((err, todos) => {
+            // 把Todo model所有的資料都抓回來
+            if (err) return console.error(err)
+            return res.render('index', { todos: todos })
+        })
 })
 
 // 列出全部 Todo
